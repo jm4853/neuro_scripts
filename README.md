@@ -10,8 +10,8 @@ To use `neuro_help.py`, the environment variable `CS455_HCP_DATA_ROOT` must be s
 
 ## Basic Usage
 ```python
-from neuro_help import *
-from common import *
+from neuro_help import data
+from common import merge_maps
 row = 4
 col = 5
 e = data.get_edge_map(row, col, connectome="fc")
@@ -19,9 +19,9 @@ a = data.get_attribute_map("Age")
 edges, ages = merge_maps(e, a)
 ```
 ```python
-from neuro_help import *
-from common import *
-from bct_help import *
+from neuro_help import data
+from common import merge_maps
+from bct_help import bdata
 node_idx = 7
 eb_ids = data.get_eb_ids()
 f = bdata.get_feature_map("node_betweenness_centrality", node_idx, eb_ids)
