@@ -1,7 +1,11 @@
 from pathlib import Path
 import os
 
-DATA_ROOT=Path(os.environ.get("CS455_DATA_ROOT", "/mnt/c/Users/Jake/Documents/cs455/project/data/HCP_ebrains"))
+try:
+    DATA_ROOT = Path(os.environ["CS455_DATA_ROOT"])
+except KeyError:
+    print("Error: Must have CS455_DATA_ROOT environment variable set")
+    exit(1)
 SC_DIR = DATA_ROOT / "ebrains_strFunc_200subj/connectomes/Schaefer100/1StructuralConnectivity"
 FC_DIR = DATA_ROOT / "ebrains_strFunc_200subj/connectomes/Schaefer100/2FunctionalConnectivity"
 DEMO_DIR = DATA_ROOT / "demographics"
@@ -144,9 +148,6 @@ def merge_maps(m1, m2):
         l1.append(a1)
         l2.append(m2[eb_id])
     return l1, l2
-
-
-
 
 
 populate_demographics()
