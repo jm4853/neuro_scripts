@@ -1,15 +1,19 @@
 from pathlib import Path
 import os
+from common import handle_type
 
 try:
-    DATA_ROOT = Path(os.environ["CS455_DATA_ROOT"])
+    HCP_DATA_ROOT = Path(os.environ["CS455_HCP_DATA_ROOT"])
 except KeyError:
-    print("Error: Must have CS455_DATA_ROOT environment variable set")
+    print("Error: Must have CS455_HCP_DATA_ROOT environment variable set")
     exit(1)
-SC_DIR = DATA_ROOT / "ebrains_strFunc_200subj/connectomes/Schaefer100/1StructuralConnectivity"
-FC_DIR = DATA_ROOT / "ebrains_strFunc_200subj/connectomes/Schaefer100/2FunctionalConnectivity"
-DEMO_DIR = DATA_ROOT / "demographics"
-ID_DIR = DATA_ROOT / "ebrains_strFunc_200subj/demographics/src"
+
+SC_DIR = HCP_DATA_ROOT / "ebrains_strFunc_200subj/connectomes/Schaefer100/1StructuralConnectivity"
+FC_DIR = HCP_DATA_ROOT / "ebrains_strFunc_200subj/connectomes/Schaefer100/2FunctionalConnectivity"
+DEMO_DIR = HCP_DATA_ROOT / "demographics"
+ID_DIR = HCP_DATA_ROOT / "ebrains_strFunc_200subj/demographics/src"
+
+
 
 # Note: DEMO_DIR / "HCP_S1200_DataDictionary_April_20_2018.xlsx" contains descriptions of each measure
 # Note: Generally, everything uses ebrains IDs
@@ -20,6 +24,12 @@ class Data:
         self.hcp_to_eb = dict()
         self.subjects = dict()
         self.attributes = []
+
+    def get_eb_ids(self):
+        return list(self.subjects.keys())
+
+    def get_hcp_ids(self):
+        return list(self.hcp_to_eb.keys())
 
     def add_subject(self, s):
         if s.hcp_id == None:
@@ -60,7 +70,7 @@ class Data:
             print(f"Error: Invalid connectome type \"{connectome}\"")
             return None
         return edge_map
-
+    
 class Subject:
     def __init__(self, eb_id, hcp_id=None):
         self.eb_id = int(eb_id)
@@ -68,16 +78,19 @@ class Subject:
         self.sc = [[]]
         self.fc = [[]]
         self.attrs = None
+        self.features = None
 
     def set_attributes(self, d):
         self.attrs = d
+
+    def set_features(self, f):
+        self.features = f
 
 
 data = Data()
 
 
 def populate_id_maps():
-    global data
     with open(ID_DIR / "SubjectConversion_EBRAINS.txt", "r") as f:
         ebrain_ids = f.readlines()[1:]  # First line is a comment
     with open(ID_DIR / "1GeneralCode_SubjectIDList.txt", "r") as f:
@@ -96,18 +109,6 @@ def populate_subject_connectomes(s):
         fc = [[float(v) for v in l.split() if v] for l in f.readlines()]
     s.sc = sc
     s.fc = fc
-
-def handle_type(s):
-    s = s.strip()
-    try:
-        if len(s) == 0:
-            return None
-        if s.isdigit():
-            return int(s)
-        else:
-            return float(s)
-    except ValueError:
-        return s
 
 def populate_demographics():
     if not (data.eb_to_hcp and data.hcp_to_eb):
@@ -135,16 +136,6 @@ def populate_connectomes():
         s = Subject(eb_id, hcp_id=data.eb_to_hcp.get(eb_id, None))
         populate_subject_connectomes(s)
         data.add_subject(s)
-
-def merge_maps(m1, m2):
-    if len(m1) != len(m2):
-        print("Error: Length mismatch")
-    l1 = []
-    l2 = []
-    for eb_id, a1 in m1.items():
-        l1.append(a1)
-        l2.append(m2[eb_id])
-    return l1, l2
 
 
 populate_demographics()
