@@ -60,8 +60,6 @@ class Data:
             print(f"Error: Invalid connectome type \"{connectome}\"")
             return None
         return edge_map
-        
-
 
 class Subject:
     def __init__(self, eb_id, hcp_id=None):
@@ -73,6 +71,7 @@ class Subject:
 
     def set_attributes(self, d):
         self.attrs = d
+
 
 data = Data()
 
@@ -88,7 +87,6 @@ def populate_id_maps():
         return
     data.eb_to_hcp = {int(k): int(v) for k, v in zip(ebrain_ids, hcp_ids)}
     data.hcp_to_eb = {int(k): int(v) for k, v in zip(hcp_ids, ebrain_ids)}
-
 
 def populate_subject_connectomes(s):
     eb_id = int(s.eb_id)
@@ -130,7 +128,6 @@ def populate_demographics():
                     print("Error: ID not in mapping")
         data.attributes = keys[1:] # Everything except "Subject"
         
-
 def populate_connectomes():
     if not (data.eb_to_hcp and data.hcp_to_eb):
         populate_id_maps()
